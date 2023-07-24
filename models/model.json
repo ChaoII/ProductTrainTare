@@ -1,0 +1,31 @@
+{
+    "rdbms": "sqlite3",
+    "filename": "data.db",
+    "tables": [
+    ],
+    "relationships": {
+        "enabled": true,
+        "items": [
+            {
+                "type": "has many",
+                "original_table_name": "train",
+                "original_table_alias": "train",
+                "original_key": "id",
+                "target_table_name": "picture",
+                "target_table_alias": "picture",
+                "target_key": "train_id",
+                "enable_reverse": true
+            },
+            {
+                "type": "has many",
+                "original_table_name": "picture",
+                "original_table_alias": "picture",
+                "original_key": "id",
+                "target_table_name": "detail",
+                "target_table_alias": "detail",
+                "target_key": "picture_id",
+                "enable_reverse": true
+            }
+        ]
+    }
+}
