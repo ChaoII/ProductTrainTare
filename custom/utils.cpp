@@ -19,7 +19,7 @@ uint64_t Custom::get_uuid() {
  * #param after     : 替换目标字符串
  * #return          : void
  */
-void  Custom::replace_str(std::string &str, const std::string &before, const std::string &after) {
+void Custom::replace_str(std::string &str, const std::string &before, const std::string &after) {
     for (std::string::size_type pos(0); pos != std::string::npos; pos += after.length()) {
         pos = str.find(before, pos);
         if (pos != std::string::npos)
@@ -61,4 +61,40 @@ trantor::Date Custom::format_date_time(const string &data_time) {
     std::string date_time_str =
             year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second + "." + msecond;
     return trantor::Date::fromDbStringLocal(date_time_str);
+}
+
+void Custom::tolower_string(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+}
+
+void Custom::toupper_string(string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::toupper(c);
+    });
+}
+
+cv::Mat Custom::concat_mat_horizontal(const cv::Mat &m1, const cv::Mat &m2) {
+    if (m1.empty() || m2.empty()) {
+        LOG_ERROR << "mat is empty please check the image is correct";
+    }
+    int w1 = m1.cols;
+    int h1 = m1.rows;
+    int w2 = m2.cols;
+    int h2 = m2.rows;
+    if (!(w1 == w2 && h1 == h2)) {
+        LOG_ERROR << "two images' shape must be equal current is : h1 = " << h1 << "h2=" << h2 << "w1=" << w1 << "w2="
+                  << w2;
+    }
+    int width = w1 + w2;
+    int height = max(h1, h2);
+    cv::Mat resultImg = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(5));
+
+    cv::Mat ROI_1 = resultImg(cv::Rect(0, 0, w1, h1));
+    cv::Mat ROI_2 = resultImg(cv::Rect(w1, 0, w2, h2));
+    m1.copyTo(ROI_1);
+    m2.copyTo(ROI_2);
+
+    return resultImg;
 }

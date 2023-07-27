@@ -9,6 +9,6 @@ using namespace drogon;
 
 void OCRTask::ocr_event() {
 
-    drogon::app().getPlugin<PPOCR>()->on_rec();
+    drogon::app().getPlugin<PPOCR>()->train_recognition_event();
 }
 

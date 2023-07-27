@@ -35,5 +35,20 @@ namespace drogon {
         static bool json_array_2_vector(const Json::Value &array, std::vector<std::string> &vec);
 
         static trantor::Date format_date_time(const std::string &data_time);
+
+        static void tolower_string(std::string &str);
+
+        static void toupper_string(std::string &str);
+
+        static cv::Mat concat_mat_horizontal(const cv::Mat &m1, const cv::Mat &m2);
+
+        template<class T>
+        static bool target_in_vector(std::vector<T> &vec, T target) {
+            auto it = std::find(vec.begin(), vec.end(), target);
+            if (it == vec.end()) {
+                return false;
+            }
+            return true;
+        }
     };
 }

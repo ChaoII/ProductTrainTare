@@ -60,6 +60,7 @@ list(APPEND DEPENDS OpenSSL::SSL OpenSSL::Crypto)
 #workspace
 include_directories("${CMAKE_SOURCE_DIR}/3rdpart/workspace/include")
 
+message("qwe as da sdqe w")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DEPENDS})
 

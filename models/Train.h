@@ -103,7 +103,6 @@ class Train
     const std::shared_ptr<uint64_t> &getId() const noexcept;
     ///Set the value of the column id
     void setId(const uint64_t &pId) noexcept;
-    void setIdToNull() noexcept;
 
     /**  For column coming_time  */
     ///Get the value of the column coming_time, returns the default value if the column is null
@@ -167,6 +166,11 @@ class Train
         std::string sql="insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
+        if(dirtyFlag_[0])
+        {
+            sql += "id,";
+            ++parametersCount;
+        }
         if(dirtyFlag_[1])
         {
             sql += "coming_time,";
@@ -180,6 +184,11 @@ class Train
         else
             sql += ") values (";
 
+        if(dirtyFlag_[0])
+        {
+            sql.append("?,");
+
+        }
         if(dirtyFlag_[1])
         {
             sql.append("?,");

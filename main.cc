@@ -12,10 +12,10 @@ int main() {
     drogon::app().registerPostHandlingAdvice([](const drogon::HttpRequestPtr &, const drogon::HttpResponsePtr &resp) {
         resp->addHeader("Access-Control-Allow-Origin", "*");
     });
-    //Load config file
+    // Load config file
     drogon::app().loadConfigFile("../config.json");
-    // å®šæ—¶ä»»åŠ¡ï¼Œæ¯60sé’Ÿæ‰§è¡Œæ›´æ–°ç³»ç»Ÿæ—¶é—´
-    drogon::app().getLoop()->runEvery(5s, [&]() {
+    // ¶¨Ê±ÈÎÎñ£¬Ã¿60sÖÓÖ´ÐÐ¸üÐÂÏµÍ³Ê±¼ä
+    drogon::app().getLoop()->runAfter(5s, [&]() {
         br.submit(OCRTask::ocr_event);
     });
     drogon::app().run();

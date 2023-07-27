@@ -21,7 +21,7 @@ const bool Train::hasPrimaryKey = true;
 const std::string Train::tableName = "train";
 
 const std::vector<typename Train::MetaData> Train::metaData_={
-{"id","uint64_t","integer",8,1,1,0},
+{"id","uint64_t","int",8,0,1,1},
 {"coming_time","std::string","text",0,0,0,0}
 };
 const std::string &Train::getColumnName(size_t index) noexcept(false)
@@ -170,11 +170,6 @@ void Train::setId(const uint64_t &pId) noexcept
     id_ = std::make_shared<uint64_t>(pId);
     dirtyFlag_[0] = true;
 }
-void Train::setIdToNull() noexcept
-{
-    id_.reset();
-    dirtyFlag_[0] = true;
-}
 const typename Train::PrimaryKeyType & Train::getPrimaryKey() const
 {
     assert(id_);
@@ -210,12 +205,12 @@ void Train::setComingTimeToNull() noexcept
 
 void Train::updateId(const uint64_t id)
 {
-    id_ = std::make_shared<uint64_t>(id);
 }
 
 const std::vector<std::string> &Train::insertColumns() noexcept
 {
     static const std::vector<std::string> inCols={
+        "id",
         "coming_time"
     };
     return inCols;
@@ -223,6 +218,17 @@ const std::vector<std::string> &Train::insertColumns() noexcept
 
 void Train::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 {
+    if(dirtyFlag_[0])
+    {
+        if(getId())
+        {
+            binder << getValueOfId();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
     if(dirtyFlag_[1])
     {
         if(getComingTime())
@@ -239,6 +245,10 @@ void Train::outputArgs(drogon::orm::internal::SqlBinder &binder) const
 const std::vector<std::string> Train::updateColumns() const
 {
     std::vector<std::string> ret;
+    if(dirtyFlag_[0])
+    {
+        ret.push_back(getColumnName(0));
+    }
     if(dirtyFlag_[1])
     {
         ret.push_back(getColumnName(1));
@@ -248,6 +258,17 @@ const std::vector<std::string> Train::updateColumns() const
 
 void Train::updateArgs(drogon::orm::internal::SqlBinder &binder) const
 {
+    if(dirtyFlag_[0])
+    {
+        if(getId())
+        {
+            binder << getValueOfId();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
     if(dirtyFlag_[1])
     {
         if(getComingTime())
@@ -339,6 +360,11 @@ bool Train::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(0, "id", pJson["id"], err, true))
             return false;
     }
+    else
+    {
+        err="The id column cannot be null";
+        return false;
+    }
     if(pJson.isMember("coming_time"))
     {
         if(!validJsonOfField(1, "coming_time", pJson["coming_time"], err, true))
@@ -363,6 +389,11 @@ bool Train::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
                   return false;
           }
+        else
+        {
+            err="The " + pMasqueradingVector[0] + " column cannot be null";
+            return false;
+        }
       }
       if(!pMasqueradingVector[1].empty())
       {
@@ -441,14 +472,10 @@ bool Train::validJsonOfField(size_t index,
     switch(index)
     {
         case 0:
-            if(isForCreation)
-            {
-                err="The automatic primary key cannot be set";
-                return false;
-            }
             if(pJson.isNull())
             {
-                return true;
+                err="The " + fieldName + " column cannot be null";
+                return false;
             }
             if(!pJson.isUInt64())
             {

@@ -19,6 +19,7 @@ const std::string Picture::Cols::_id = "id";
 const std::string Picture::Cols::_pic_url = "pic_url";
 const std::string Picture::Cols::_train_id = "train_id";
 const std::string Picture::Cols::_type = "type";
+const std::string Picture::Cols::_result = "result";
 const std::string Picture::primaryKeyName = "id";
 const bool Picture::hasPrimaryKey = true;
 const std::string Picture::tableName = "picture";
@@ -27,7 +28,8 @@ const std::vector<typename Picture::MetaData> Picture::metaData_={
 {"id","uint64_t","integer",8,1,1,1},
 {"pic_url","std::string","text",0,0,0,0},
 {"train_id","uint64_t","integer",8,0,0,1},
-{"type","uint64_t","integer",8,0,0,1}
+{"type","uint64_t","integer",8,0,0,1},
+{"result","std::string","text",0,0,0,0}
 };
 const std::string &Picture::getColumnName(size_t index) noexcept(false)
 {
@@ -54,11 +56,15 @@ Picture::Picture(const Row &r, const ssize_t indexOffset) noexcept
         {
             type_=std::make_shared<uint64_t>(r["type"].as<uint64_t>());
         }
+        if(!r["result"].isNull())
+        {
+            result_=std::make_shared<std::string>(r["result"].as<std::string>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 4 > r.size())
+        if(offset + 5 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -84,13 +90,18 @@ Picture::Picture(const Row &r, const ssize_t indexOffset) noexcept
         {
             type_=std::make_shared<uint64_t>(r[index].as<uint64_t>());
         }
+        index = offset + 4;
+        if(!r[index].isNull())
+        {
+            result_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
     }
 
 }
 
 Picture::Picture(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -125,6 +136,14 @@ Picture::Picture(const Json::Value &pJson, const std::vector<std::string> &pMasq
         if(!pJson[pMasqueradingVector[3]].isNull())
         {
             type_=std::make_shared<uint64_t>((uint64_t)pJson[pMasqueradingVector[3]].asUInt64());
+        }
+    }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            result_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
 }
@@ -163,12 +182,20 @@ Picture::Picture(const Json::Value &pJson) noexcept(false)
             type_=std::make_shared<uint64_t>((uint64_t)pJson["type"].asUInt64());
         }
     }
+    if(pJson.isMember("result"))
+    {
+        dirtyFlag_[4]=true;
+        if(!pJson["result"].isNull())
+        {
+            result_=std::make_shared<std::string>(pJson["result"].asString());
+        }
+    }
 }
 
 void Picture::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -204,6 +231,14 @@ void Picture::updateByMasqueradedJson(const Json::Value &pJson,
             type_=std::make_shared<uint64_t>((uint64_t)pJson[pMasqueradingVector[3]].asUInt64());
         }
     }
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            result_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
+        }
+    }
 }
 
 void Picture::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -237,6 +272,14 @@ void Picture::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["type"].isNull())
         {
             type_=std::make_shared<uint64_t>((uint64_t)pJson["type"].asUInt64());
+        }
+    }
+    if(pJson.isMember("result"))
+    {
+        dirtyFlag_[4] = true;
+        if(!pJson["result"].isNull())
+        {
+            result_=std::make_shared<std::string>(pJson["result"].asString());
         }
     }
 }
@@ -324,6 +367,33 @@ void Picture::setType(const uint64_t &pType) noexcept
     dirtyFlag_[3] = true;
 }
 
+const std::string &Picture::getValueOfResult() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(result_)
+        return *result_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Picture::getResult() const noexcept
+{
+    return result_;
+}
+void Picture::setResult(const std::string &pResult) noexcept
+{
+    result_ = std::make_shared<std::string>(pResult);
+    dirtyFlag_[4] = true;
+}
+void Picture::setResult(std::string &&pResult) noexcept
+{
+    result_ = std::make_shared<std::string>(std::move(pResult));
+    dirtyFlag_[4] = true;
+}
+void Picture::setResultToNull() noexcept
+{
+    result_.reset();
+    dirtyFlag_[4] = true;
+}
+
 void Picture::updateId(const uint64_t id)
 {
     id_ = std::make_shared<uint64_t>(id);
@@ -334,7 +404,8 @@ const std::vector<std::string> &Picture::insertColumns() noexcept
     static const std::vector<std::string> inCols={
         "pic_url",
         "train_id",
-        "type"
+        "type",
+        "result"
     };
     return inCols;
 }
@@ -374,6 +445,17 @@ void Picture::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[4])
+    {
+        if(getResult())
+        {
+            binder << getValueOfResult();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Picture::updateColumns() const
@@ -390,6 +472,10 @@ const std::vector<std::string> Picture::updateColumns() const
     if(dirtyFlag_[3])
     {
         ret.push_back(getColumnName(3));
+    }
+    if(dirtyFlag_[4])
+    {
+        ret.push_back(getColumnName(4));
     }
     return ret;
 }
@@ -423,6 +509,17 @@ void Picture::updateArgs(drogon::orm::internal::SqlBinder &binder) const
         if(getType())
         {
             binder << getValueOfType();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[4])
+    {
+        if(getResult())
+        {
+            binder << getValueOfResult();
         }
         else
         {
@@ -465,6 +562,14 @@ Json::Value Picture::toJson() const
     {
         ret["type"]=Json::Value();
     }
+    if(getResult())
+    {
+        ret["result"]=getValueOfResult();
+    }
+    else
+    {
+        ret["result"]=Json::Value();
+    }
     return ret;
 }
 
@@ -472,7 +577,7 @@ Json::Value Picture::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 4)
+    if(pMasqueradingVector.size() == 5)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -518,6 +623,17 @@ Json::Value Picture::toMasqueradedJson(
                 ret[pMasqueradingVector[3]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[4].empty())
+        {
+            if(getResult())
+            {
+                ret[pMasqueradingVector[4]]=getValueOfResult();
+            }
+            else
+            {
+                ret[pMasqueradingVector[4]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -552,6 +668,14 @@ Json::Value Picture::toMasqueradedJson(
     else
     {
         ret["type"]=Json::Value();
+    }
+    if(getResult())
+    {
+        ret["result"]=getValueOfResult();
+    }
+    else
+    {
+        ret["result"]=Json::Value();
     }
     return ret;
 }
@@ -588,13 +712,18 @@ bool Picture::validateJsonForCreation(const Json::Value &pJson, std::string &err
         err="The type column cannot be null";
         return false;
     }
+    if(pJson.isMember("result"))
+    {
+        if(!validJsonOfField(4, "result", pJson["result"], err, true))
+            return false;
+    }
     return true;
 }
 bool Picture::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                  const std::vector<std::string> &pMasqueradingVector,
                                                  std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -642,6 +771,14 @@ bool Picture::validateMasqueradedJsonForCreation(const Json::Value &pJson,
             return false;
         }
       }
+      if(!pMasqueradingVector[4].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[4]))
+          {
+              if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -677,13 +814,18 @@ bool Picture::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(3, "type", pJson["type"], err, false))
             return false;
     }
+    if(pJson.isMember("result"))
+    {
+        if(!validJsonOfField(4, "result", pJson["result"], err, false))
+            return false;
+    }
     return true;
 }
 bool Picture::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                const std::vector<std::string> &pMasqueradingVector,
                                                std::string &err)
 {
-    if(pMasqueradingVector.size() != 4)
+    if(pMasqueradingVector.size() != 5)
     {
         err = "Bad masquerading vector";
         return false;
@@ -712,6 +854,11 @@ bool Picture::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
       {
           if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+      {
+          if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
               return false;
       }
     }
@@ -777,6 +924,17 @@ bool Picture::validJsonOfField(size_t index,
                 return false;
             }
             if(!pJson.isUInt64())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 4:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
