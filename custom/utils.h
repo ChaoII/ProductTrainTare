@@ -42,6 +42,8 @@ namespace drogon {
 
         static cv::Mat concat_mat_horizontal(const cv::Mat &m1, const cv::Mat &m2);
 
+        static std::string front_time_to_backend(const std::string& fronted_time);
+
         template<class T>
         static bool target_in_vector(std::vector<T> &vec, T target) {
             auto it = std::find(vec.begin(), vec.end(), target);

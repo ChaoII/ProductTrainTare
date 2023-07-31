@@ -35,6 +35,7 @@ void User::login(const HttpRequestPtr &req, std::function<void(const HttpRespons
                     .set_expires_at(exp)
                     .sign(jwt::algorithm::hs256{"zhongmingdingshi"});
             sub["token"] = token;
+            sub["nickname"] = *user_[0].getNickname();
             sub["username"] = username;
             result["code"] = 0;
             result["data"] = sub;
@@ -61,6 +62,7 @@ void User::add_user(const HttpRequestPtr &req, std::function<void(const HttpResp
         return;
     }
     std::string username = obj->get("username", "").asString();
+    std::string nickname = obj->get("nickname", "").asString();
     std::string password = drogon::utils::getMd5(obj->get("password", "").asString());
     if (username.empty() || password.empty()) {
         result["code"] = -1;
@@ -76,6 +78,7 @@ void User::add_user(const HttpRequestPtr &req, std::function<void(const HttpResp
         Users user;
         user.setUsername(username);
         user.setPassword(password);
+        user.setNickname(nickname);
         mp.insert(user);
         result["code"] = 0;
         result["data"] = {username};
@@ -91,9 +94,9 @@ void User::add_user(const HttpRequestPtr &req, std::function<void(const HttpResp
 
 void User::get_user(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
 
-    std::string search_name = req->getParameter("search_name");
-    int page_size = std::stoi(req->getParameter("page_size"));
-    int page_index = std::stoi(req->getParameter("page_index"));
+    std::string search_name = req->getParameter("searchName");
+    int page_size = std::stoi(req->getParameter("pageSize"));
+    int page_index = std::stoi(req->getParameter("pageIndex"));
     Json::Value result, root, user_list, sub;
     Mapper<Users> mp(drogon::app().getDbClient());
     if (search_name.empty())

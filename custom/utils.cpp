@@ -98,3 +98,14 @@ cv::Mat Custom::concat_mat_horizontal(const cv::Mat &m1, const cv::Mat &m2) {
 
     return resultImg;
 }
+
+std::string Custom::front_time_to_backend(const string &fronted_time) {
+    //2023-07-31T15:59:59.000Z
+    auto parts = drogon::utils::splitString(fronted_time, "T");
+    if (parts.size() != 2) {
+        LOG_ERROR << "time format error";
+    }
+    std::string time = parts[1];
+    replace_str(time, "Z", "");
+    return parts[0] + "" + time;
+}

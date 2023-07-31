@@ -251,7 +251,8 @@ void PPOCR::postprocess(const cv::Mat &img, const std::string &cur_time) {
                 [](const DrogonDbException &e) {
                     LOG_ERROR << e.base().what();
                 },
-                drogon::Custom::get_uuid(), cur_time, "", result_.text, last_result_.text, 0.0, 0.0, 0.0,
+                drogon::Custom::get_uuid(), drogon::Custom::format_date_time(cur_time).toCustomedFormattedStringLocal(
+                        "%Y-%m-%d %H:%M:%S"), "", result_.text, last_result_.text, 0.0, 0.0, 0.0,
                 result_path.string(), result_.train_id);
     }
     last_result_ = result_;

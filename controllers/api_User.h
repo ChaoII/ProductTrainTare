@@ -11,7 +11,7 @@ class User : public drogon::HttpController<User>
 {
   public:
     METHOD_LIST_BEGIN
-        ADD_METHOD_TO(User::login, "/api/user/signIn", Options, Post);
+        ADD_METHOD_TO(User::login, "/api/user/login", Options, Post);
         ADD_METHOD_TO(User::add_user, "/api/user/addUser", Options, Put, "LoginFilter");
         ADD_METHOD_TO(User::get_user, "/api/user/getUser", Options, Get, "LoginFilter");
         ADD_METHOD_TO(User::del_user, "/api/user/delUser", Options, Delete, "LoginFilter");
