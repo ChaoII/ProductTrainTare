@@ -6,6 +6,7 @@
  */
 
 #include "Train.h"
+#include "History.h"
 #include "Picture.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
@@ -513,6 +514,24 @@ void Train::getPicture(const DbClientPtr &clientPtr,
                    for (auto const &row : r)
                    {
                        ret.emplace_back(Picture(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
+}
+void Train::getHistory(const DbClientPtr &clientPtr,
+                       const std::function<void(std::vector<History>)> &rcb,
+                       const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from history where train_id = ?";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<History> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(History(row));
                    }
                    rcb(ret);
                }

@@ -36,6 +36,7 @@ namespace drogon_model
 {
 namespace sqlite3
 {
+class Train;
 
 class History
 {
@@ -143,38 +144,42 @@ class History
 
     /**  For column dead_weight  */
     ///Get the value of the column dead_weight, returns the default value if the column is null
-    const double &getValueOfDeadWeight() const noexcept;
+    const std::string &getValueOfDeadWeight() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<double> &getDeadWeight() const noexcept;
+    const std::shared_ptr<std::string> &getDeadWeight() const noexcept;
     ///Set the value of the column dead_weight
-    void setDeadWeight(const double &pDeadWeight) noexcept;
+    void setDeadWeight(const std::string &pDeadWeight) noexcept;
+    void setDeadWeight(std::string &&pDeadWeight) noexcept;
     void setDeadWeightToNull() noexcept;
 
     /**  For column rough_weight  */
     ///Get the value of the column rough_weight, returns the default value if the column is null
-    const double &getValueOfRoughWeight() const noexcept;
+    const std::string &getValueOfRoughWeight() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<double> &getRoughWeight() const noexcept;
+    const std::shared_ptr<std::string> &getRoughWeight() const noexcept;
     ///Set the value of the column rough_weight
-    void setRoughWeight(const double &pRoughWeight) noexcept;
+    void setRoughWeight(const std::string &pRoughWeight) noexcept;
+    void setRoughWeight(std::string &&pRoughWeight) noexcept;
     void setRoughWeightToNull() noexcept;
 
     /**  For column volume  */
     ///Get the value of the column volume, returns the default value if the column is null
-    const double &getValueOfVolume() const noexcept;
+    const std::string &getValueOfVolume() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<double> &getVolume() const noexcept;
+    const std::shared_ptr<std::string> &getVolume() const noexcept;
     ///Set the value of the column volume
-    void setVolume(const double &pVolume) noexcept;
+    void setVolume(const std::string &pVolume) noexcept;
+    void setVolume(std::string &&pVolume) noexcept;
     void setVolumeToNull() noexcept;
 
     /**  For column length  */
     ///Get the value of the column length, returns the default value if the column is null
-    const double &getValueOfLength() const noexcept;
+    const std::string &getValueOfLength() const noexcept;
     ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<double> &getLength() const noexcept;
+    const std::shared_ptr<std::string> &getLength() const noexcept;
     ///Set the value of the column length
-    void setLength(const double &pLength) noexcept;
+    void setLength(const std::string &pLength) noexcept;
+    void setLength(std::string &&pLength) noexcept;
     void setLengthToNull() noexcept;
 
     /**  For column pic_url  */
@@ -202,6 +207,9 @@ class History
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    void getTrain(const drogon::orm::DbClientPtr &clientPtr,
+                  const std::function<void(Train)> &rcb,
+                  const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<History>;
 #ifdef __cpp_impl_coroutine
@@ -217,10 +225,10 @@ class History
     std::shared_ptr<std::string> time_;
     std::shared_ptr<std::string> trainMode_;
     std::shared_ptr<std::string> trainNum_;
-    std::shared_ptr<double> deadWeight_;
-    std::shared_ptr<double> roughWeight_;
-    std::shared_ptr<double> volume_;
-    std::shared_ptr<double> length_;
+    std::shared_ptr<std::string> deadWeight_;
+    std::shared_ptr<std::string> roughWeight_;
+    std::shared_ptr<std::string> volume_;
+    std::shared_ptr<std::string> length_;
     std::shared_ptr<std::string> picUrl_;
     std::shared_ptr<uint64_t> trainId_;
     struct MetaData

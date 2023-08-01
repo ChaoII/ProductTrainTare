@@ -6,6 +6,7 @@
  */
 
 #include "History.h"
+#include "Train.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -32,10 +33,10 @@ const std::vector<typename History::MetaData> History::metaData_={
 {"time","std::string","text",0,0,0,0},
 {"train_mode","std::string","text",0,0,0,0},
 {"train_num","std::string","text",0,0,0,0},
-{"dead_weight","double","real",8,0,0,0},
-{"rough_weight","double","real",8,0,0,0},
-{"volume","double","real",8,0,0,0},
-{"length","double","real",8,0,0,0},
+{"dead_weight","std::string","text",0,0,0,0},
+{"rough_weight","std::string","text",0,0,0,0},
+{"volume","std::string","text",0,0,0,0},
+{"length","std::string","text",0,0,0,0},
 {"pic_url","std::string","text",0,0,0,0},
 {"train_id","uint64_t","integer",8,0,0,1}
 };
@@ -66,19 +67,19 @@ History::History(const Row &r, const ssize_t indexOffset) noexcept
         }
         if(!r["dead_weight"].isNull())
         {
-            deadWeight_=std::make_shared<double>(r["dead_weight"].as<double>());
+            deadWeight_=std::make_shared<std::string>(r["dead_weight"].as<std::string>());
         }
         if(!r["rough_weight"].isNull())
         {
-            roughWeight_=std::make_shared<double>(r["rough_weight"].as<double>());
+            roughWeight_=std::make_shared<std::string>(r["rough_weight"].as<std::string>());
         }
         if(!r["volume"].isNull())
         {
-            volume_=std::make_shared<double>(r["volume"].as<double>());
+            volume_=std::make_shared<std::string>(r["volume"].as<std::string>());
         }
         if(!r["length"].isNull())
         {
-            length_=std::make_shared<double>(r["length"].as<double>());
+            length_=std::make_shared<std::string>(r["length"].as<std::string>());
         }
         if(!r["pic_url"].isNull())
         {
@@ -121,22 +122,22 @@ History::History(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 4;
         if(!r[index].isNull())
         {
-            deadWeight_=std::make_shared<double>(r[index].as<double>());
+            deadWeight_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 5;
         if(!r[index].isNull())
         {
-            roughWeight_=std::make_shared<double>(r[index].as<double>());
+            roughWeight_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 6;
         if(!r[index].isNull())
         {
-            volume_=std::make_shared<double>(r[index].as<double>());
+            volume_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 7;
         if(!r[index].isNull())
         {
-            length_=std::make_shared<double>(r[index].as<double>());
+            length_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 8;
         if(!r[index].isNull())
@@ -196,7 +197,7 @@ History::History(const Json::Value &pJson, const std::vector<std::string> &pMasq
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            deadWeight_=std::make_shared<double>(pJson[pMasqueradingVector[4]].asDouble());
+            deadWeight_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -204,7 +205,7 @@ History::History(const Json::Value &pJson, const std::vector<std::string> &pMasq
         dirtyFlag_[5] = true;
         if(!pJson[pMasqueradingVector[5]].isNull())
         {
-            roughWeight_=std::make_shared<double>(pJson[pMasqueradingVector[5]].asDouble());
+            roughWeight_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
         }
     }
     if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
@@ -212,7 +213,7 @@ History::History(const Json::Value &pJson, const std::vector<std::string> &pMasq
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            volume_=std::make_shared<double>(pJson[pMasqueradingVector[6]].asDouble());
+            volume_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -220,7 +221,7 @@ History::History(const Json::Value &pJson, const std::vector<std::string> &pMasq
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            length_=std::make_shared<double>(pJson[pMasqueradingVector[7]].asDouble());
+            length_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
         }
     }
     if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
@@ -280,7 +281,7 @@ History::History(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[4]=true;
         if(!pJson["dead_weight"].isNull())
         {
-            deadWeight_=std::make_shared<double>(pJson["dead_weight"].asDouble());
+            deadWeight_=std::make_shared<std::string>(pJson["dead_weight"].asString());
         }
     }
     if(pJson.isMember("rough_weight"))
@@ -288,7 +289,7 @@ History::History(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[5]=true;
         if(!pJson["rough_weight"].isNull())
         {
-            roughWeight_=std::make_shared<double>(pJson["rough_weight"].asDouble());
+            roughWeight_=std::make_shared<std::string>(pJson["rough_weight"].asString());
         }
     }
     if(pJson.isMember("volume"))
@@ -296,7 +297,7 @@ History::History(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[6]=true;
         if(!pJson["volume"].isNull())
         {
-            volume_=std::make_shared<double>(pJson["volume"].asDouble());
+            volume_=std::make_shared<std::string>(pJson["volume"].asString());
         }
     }
     if(pJson.isMember("length"))
@@ -304,7 +305,7 @@ History::History(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[7]=true;
         if(!pJson["length"].isNull())
         {
-            length_=std::make_shared<double>(pJson["length"].asDouble());
+            length_=std::make_shared<std::string>(pJson["length"].asString());
         }
     }
     if(pJson.isMember("pic_url"))
@@ -369,7 +370,7 @@ void History::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[4] = true;
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
-            deadWeight_=std::make_shared<double>(pJson[pMasqueradingVector[4]].asDouble());
+            deadWeight_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
     if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
@@ -377,7 +378,7 @@ void History::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[5] = true;
         if(!pJson[pMasqueradingVector[5]].isNull())
         {
-            roughWeight_=std::make_shared<double>(pJson[pMasqueradingVector[5]].asDouble());
+            roughWeight_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
         }
     }
     if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
@@ -385,7 +386,7 @@ void History::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            volume_=std::make_shared<double>(pJson[pMasqueradingVector[6]].asDouble());
+            volume_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -393,7 +394,7 @@ void History::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            length_=std::make_shared<double>(pJson[pMasqueradingVector[7]].asDouble());
+            length_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
         }
     }
     if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
@@ -452,7 +453,7 @@ void History::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[4] = true;
         if(!pJson["dead_weight"].isNull())
         {
-            deadWeight_=std::make_shared<double>(pJson["dead_weight"].asDouble());
+            deadWeight_=std::make_shared<std::string>(pJson["dead_weight"].asString());
         }
     }
     if(pJson.isMember("rough_weight"))
@@ -460,7 +461,7 @@ void History::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[5] = true;
         if(!pJson["rough_weight"].isNull())
         {
-            roughWeight_=std::make_shared<double>(pJson["rough_weight"].asDouble());
+            roughWeight_=std::make_shared<std::string>(pJson["rough_weight"].asString());
         }
     }
     if(pJson.isMember("volume"))
@@ -468,7 +469,7 @@ void History::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[6] = true;
         if(!pJson["volume"].isNull())
         {
-            volume_=std::make_shared<double>(pJson["volume"].asDouble());
+            volume_=std::make_shared<std::string>(pJson["volume"].asString());
         }
     }
     if(pJson.isMember("length"))
@@ -476,7 +477,7 @@ void History::updateByJson(const Json::Value &pJson) noexcept(false)
         dirtyFlag_[7] = true;
         if(!pJson["length"].isNull())
         {
-            length_=std::make_shared<double>(pJson["length"].asDouble());
+            length_=std::make_shared<std::string>(pJson["length"].asString());
         }
     }
     if(pJson.isMember("pic_url"))
@@ -600,20 +601,25 @@ void History::setTrainNumToNull() noexcept
     dirtyFlag_[3] = true;
 }
 
-const double &History::getValueOfDeadWeight() const noexcept
+const std::string &History::getValueOfDeadWeight() const noexcept
 {
-    const static double defaultValue = double();
+    const static std::string defaultValue = std::string();
     if(deadWeight_)
         return *deadWeight_;
     return defaultValue;
 }
-const std::shared_ptr<double> &History::getDeadWeight() const noexcept
+const std::shared_ptr<std::string> &History::getDeadWeight() const noexcept
 {
     return deadWeight_;
 }
-void History::setDeadWeight(const double &pDeadWeight) noexcept
+void History::setDeadWeight(const std::string &pDeadWeight) noexcept
 {
-    deadWeight_ = std::make_shared<double>(pDeadWeight);
+    deadWeight_ = std::make_shared<std::string>(pDeadWeight);
+    dirtyFlag_[4] = true;
+}
+void History::setDeadWeight(std::string &&pDeadWeight) noexcept
+{
+    deadWeight_ = std::make_shared<std::string>(std::move(pDeadWeight));
     dirtyFlag_[4] = true;
 }
 void History::setDeadWeightToNull() noexcept
@@ -622,20 +628,25 @@ void History::setDeadWeightToNull() noexcept
     dirtyFlag_[4] = true;
 }
 
-const double &History::getValueOfRoughWeight() const noexcept
+const std::string &History::getValueOfRoughWeight() const noexcept
 {
-    const static double defaultValue = double();
+    const static std::string defaultValue = std::string();
     if(roughWeight_)
         return *roughWeight_;
     return defaultValue;
 }
-const std::shared_ptr<double> &History::getRoughWeight() const noexcept
+const std::shared_ptr<std::string> &History::getRoughWeight() const noexcept
 {
     return roughWeight_;
 }
-void History::setRoughWeight(const double &pRoughWeight) noexcept
+void History::setRoughWeight(const std::string &pRoughWeight) noexcept
 {
-    roughWeight_ = std::make_shared<double>(pRoughWeight);
+    roughWeight_ = std::make_shared<std::string>(pRoughWeight);
+    dirtyFlag_[5] = true;
+}
+void History::setRoughWeight(std::string &&pRoughWeight) noexcept
+{
+    roughWeight_ = std::make_shared<std::string>(std::move(pRoughWeight));
     dirtyFlag_[5] = true;
 }
 void History::setRoughWeightToNull() noexcept
@@ -644,20 +655,25 @@ void History::setRoughWeightToNull() noexcept
     dirtyFlag_[5] = true;
 }
 
-const double &History::getValueOfVolume() const noexcept
+const std::string &History::getValueOfVolume() const noexcept
 {
-    const static double defaultValue = double();
+    const static std::string defaultValue = std::string();
     if(volume_)
         return *volume_;
     return defaultValue;
 }
-const std::shared_ptr<double> &History::getVolume() const noexcept
+const std::shared_ptr<std::string> &History::getVolume() const noexcept
 {
     return volume_;
 }
-void History::setVolume(const double &pVolume) noexcept
+void History::setVolume(const std::string &pVolume) noexcept
 {
-    volume_ = std::make_shared<double>(pVolume);
+    volume_ = std::make_shared<std::string>(pVolume);
+    dirtyFlag_[6] = true;
+}
+void History::setVolume(std::string &&pVolume) noexcept
+{
+    volume_ = std::make_shared<std::string>(std::move(pVolume));
     dirtyFlag_[6] = true;
 }
 void History::setVolumeToNull() noexcept
@@ -666,20 +682,25 @@ void History::setVolumeToNull() noexcept
     dirtyFlag_[6] = true;
 }
 
-const double &History::getValueOfLength() const noexcept
+const std::string &History::getValueOfLength() const noexcept
 {
-    const static double defaultValue = double();
+    const static std::string defaultValue = std::string();
     if(length_)
         return *length_;
     return defaultValue;
 }
-const std::shared_ptr<double> &History::getLength() const noexcept
+const std::shared_ptr<std::string> &History::getLength() const noexcept
 {
     return length_;
 }
-void History::setLength(const double &pLength) noexcept
+void History::setLength(const std::string &pLength) noexcept
 {
-    length_ = std::make_shared<double>(pLength);
+    length_ = std::make_shared<std::string>(pLength);
+    dirtyFlag_[7] = true;
+}
+void History::setLength(std::string &&pLength) noexcept
+{
+    length_ = std::make_shared<std::string>(std::move(pLength));
     dirtyFlag_[7] = true;
 }
 void History::setLengthToNull() noexcept
@@ -1645,7 +1666,7 @@ bool History::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isNumeric())
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1656,7 +1677,7 @@ bool History::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isNumeric())
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1667,7 +1688,7 @@ bool History::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isNumeric())
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1678,7 +1699,7 @@ bool History::validJsonOfField(size_t index,
             {
                 return true;
             }
-            if(!pJson.isNumeric())
+            if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
@@ -1712,4 +1733,27 @@ bool History::validJsonOfField(size_t index,
             return false;
     }
     return true;
+}
+void History::getTrain(const DbClientPtr &clientPtr,
+                       const std::function<void(Train)> &rcb,
+                       const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from train where id = ?";
+    *clientPtr << sql
+               << *trainId_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Train(r[0]));
+                    }
+               }
+               >> ecb;
 }

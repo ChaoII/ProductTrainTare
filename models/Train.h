@@ -36,6 +36,7 @@ namespace drogon_model
 {
 namespace sqlite3
 {
+class History;
 class Picture;
 
 class Train
@@ -123,6 +124,9 @@ class Train
     /// Relationship interfaces
     void getPicture(const drogon::orm::DbClientPtr &clientPtr,
                     const std::function<void(std::vector<Picture>)> &rcb,
+                    const drogon::orm::ExceptionCallback &ecb) const;
+    void getHistory(const drogon::orm::DbClientPtr &clientPtr,
+                    const std::function<void(std::vector<History>)> &rcb,
                     const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Train>;
