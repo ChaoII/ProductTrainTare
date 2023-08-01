@@ -147,17 +147,18 @@ void PPOCR::train_ocr(const std::string &cur_time, const std::string &path) {
     std::string file_name = cur_time + ".jpg";
     fs::path new_file_name = fs::path(dir_name_) / fs::path(file_name);
     fs::rename(path, new_file_name);
+    std::string cur_time_ = drogon::Custom::format_date_time(cur_time).toCustomedFormattedStringLocal(
+            "%Y-%m-%d %H:%M:%S");
     postprocess(img, cur_time);
     result_.pic_url = new_file_name.string();
     {
         auto clientPtr = drogon::app().getDbClient();
-        clientPtr->execSqlAsync("INSERT INTO picture VALUES (?, ?, ?, ?, ?);",
+        clientPtr->execSqlAsync("INSERT INTO picture VALUES (?, ?, ?, ?, ?, ?);",
                                 [](const drogon::orm::Result &result) {},
                                 [](const DrogonDbException &e) {
                                     LOG_ERROR << e.base().what();
-                                },
-                                drogon::Custom::get_uuid(), result_.pic_url, result_.train_id, result_.flag,
-                                result_.text);
+                                }, drogon::Custom::get_uuid(), result_.pic_url, result_.train_id,
+                                result_.flag, result_.text, cur_time_);
     }
 }
 

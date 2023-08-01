@@ -1,6 +1,7 @@
 #include "api_Train.h"
 #include "models/History.h"
 #include "models/Train.h"
+#include "models/Picture.h"
 #include "custom/utils.h"
 #include <drogon/orm/Mapper.h>
 
@@ -8,6 +9,7 @@ using namespace api;
 using namespace drogon::orm;
 using Historys = drogon_model::sqlite3::History;
 using Trains = drogon_model::sqlite3::Train;
+using Picture = drogon_model::sqlite3::Picture;
 
 
 void Train::get_coming_time(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
@@ -90,6 +92,56 @@ void Train::get_history(const HttpRequestPtr &req, std::function<void(const Http
     result["code"] = 0;
     root["total"] = total;
     result["data"] = root;
+    result["msg"] = "success";
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);
+}
+
+void Train::get_latest(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    Mapper<Historys> mp(drogon::app().getDbClient());
+    auto histories = mp.orderBy(Historys::Cols::_time, SortOrder::DESC).limit(1).findAll();
+    Json::Value root, result, sub;
+    if (histories.empty()) {
+        result["code"] = 0;
+        result["data"] = {};
+        result["msg"] = "successful";
+        auto resp = HttpResponse::newHttpJsonResponse(result);
+        callback(resp);
+        return;
+    }
+    auto history = histories[0];
+    sub["id"] = history.getValueOfId();
+    sub["trainMode"] = history.getValueOfTrainMode();
+    sub["trainNum"] = history.getValueOfTrainNum();
+    sub["deadWeight"] = history.getValueOfDeadWeight();
+    sub["roughWeight"] = history.getValueOfRoughWeight();
+    sub["volume"] = history.getValueOfVolume();
+    sub["length"] = history.getValueOfLength();
+    sub["imgUrl"] = history.getValueOfPicUrl();
+    result["code"] = 0;
+    result["data"] = sub;
+    result["msg"] = "success";
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);
+}
+
+void Train::get_curimg(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    Mapper<Picture> mp(drogon::app().getDbClient());
+    auto pictures = mp.orderBy(Picture::Cols::_time, SortOrder::DESC).limit(1).findAll();
+    Json::Value root, result, sub;
+    if (pictures.empty()) {
+        result["code"] = 0;
+        result["data"] = {};
+        result["msg"] = "successful";
+        auto resp = HttpResponse::newHttpJsonResponse(result);
+        callback(resp);
+        return;
+    }
+    auto picture = pictures[0];
+    sub["id"] = picture.getValueOfId();
+    sub["imgUrl"] = picture.getValueOfPicUrl();
+    result["code"] = 0;
+    result["data"] = sub;
     result["msg"] = "success";
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);
