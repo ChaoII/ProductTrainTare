@@ -16,6 +16,7 @@ class User : public drogon::HttpController<User>
         ADD_METHOD_TO(User::get_user, "/api/user/getUser", Options, Get, "LoginFilter");
         ADD_METHOD_TO(User::del_user, "/api/user/delUser", Options, Delete, "LoginFilter");
         ADD_METHOD_TO(User::edit_user, "/api/user/editUser", Options, Post, "LoginFilter");
+        ADD_METHOD_TO(User::modify_password, "/api/user/modify_password", Options, Post, "LoginFilter");
     METHOD_LIST_END
 
     void login(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
@@ -27,5 +28,8 @@ class User : public drogon::HttpController<User>
     void del_user(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
 
     void edit_user(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+
+    void modify_password(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback);
+
 };
 }

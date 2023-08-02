@@ -29,7 +29,15 @@ void PPOCR::initAndStart(const Json::Value &config) {
     int global_thread_num = config.get("global_thread_num", 1).asInt();
 
     Mapper<Records> mp(drogon::app().getDbClient());
-    records_ = mp.findAll()[0];
+    auto records = mp.findAll();
+    if (records.empty()) {
+        records_.setId(drogon::Custom::get_uuid());
+        records_.setLastTimestamp("20220611073615283");
+        records_.setDirName("dst\\202206150736");
+        mp.insert(records_);
+    } else {
+        records_ = records[0];
+    }
     last_timestamp_ = records_.getValueOfLastTimestamp();
     dir_name_ = records_.getValueOfDirName();
 
@@ -253,7 +261,7 @@ void PPOCR::postprocess(const cv::Mat &img, const std::string &cur_time) {
                     LOG_ERROR << e.base().what();
                 },
                 drogon::Custom::get_uuid(), drogon::Custom::format_date_time(cur_time).toCustomedFormattedStringLocal(
-                        "%Y-%m-%d %H:%M:%S"), "", result_.text, last_result_.text, 0.0, 0.0, 0.0,
+                        "%Y-%m-%d %H:%M:%S"), "-", result_.text, last_result_.text, 0.0, 0.0, 0.0,
                 result_path.string(), result_.train_id);
     }
     last_result_ = result_;

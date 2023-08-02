@@ -195,3 +195,40 @@ void User::edit_user(const HttpRequestPtr &req, std::function<void(const HttpRes
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);
 }
+
+void User::modify_password(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    Json::Value result, sub;
+    auto obj = req->getJsonObject();
+    if (obj == nullptr) {
+        result["code"] = -1;
+        result["data"] = {};
+        result["msg"] = "request params error";
+        auto resp = HttpResponse::newHttpJsonResponse(result);
+        callback(resp);
+        return;
+    }
+    std::string username = obj->get("username", "").asString();
+    std::string old_password = drogon::utils::getMd5(obj->get("oldPassword", "").asString());
+    LOG_INFO << username;
+    LOG_INFO << old_password;
+    std::string new_password = drogon::utils::getMd5(obj->get("newPassword", "").asString());
+    Mapper<Users> mp(drogon::app().getDbClient());
+    auto users = mp.findBy(Criteria(Users::Cols::_username, CompareOperator::EQ, username) &&
+                           Criteria(Users::Cols::_password, CompareOperator::EQ, old_password));
+    sub["username"] = username;
+    if (!users.empty()) {
+        Users user = users[0];
+        user.setPassword(new_password);
+        mp.update(user);
+        result["code"] = 0;
+        result["data"] = sub;
+        result["msg"] = "password modify successful!";
+    } else {
+        result["code"] = -1;
+        result["data"] = {};
+        result["msg"] = "password modify failed,please ensure old password is correct!";
+    }
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);
+
+}
