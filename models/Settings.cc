@@ -18,6 +18,7 @@ const std::string Settings::Cols::_distance_steel = "distance_steel";
 const std::string Settings::Cols::_distance_camera = "distance_camera";
 const std::string Settings::Cols::_camera_address = "camera_address";
 const std::string Settings::Cols::_update_time = "update_time";
+const std::string Settings::Cols::_device_name = "device_name";
 const std::string Settings::primaryKeyName = "id";
 const bool Settings::hasPrimaryKey = true;
 const std::string Settings::tableName = "settings";
@@ -27,7 +28,8 @@ const std::vector<typename Settings::MetaData> Settings::metaData_={
 {"distance_steel","std::string","text",0,0,0,0},
 {"distance_camera","std::string","text",0,0,0,0},
 {"camera_address","std::string","text",0,0,0,0},
-{"update_time","std::string","text",0,0,0,0}
+{"update_time","std::string","text",0,0,0,0},
+{"device_name","std::string","text",0,0,0,0}
 };
 const std::string &Settings::getColumnName(size_t index) noexcept(false)
 {
@@ -58,11 +60,15 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             updateTime_=std::make_shared<std::string>(r["update_time"].as<std::string>());
         }
+        if(!r["device_name"].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(r["device_name"].as<std::string>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 5 > r.size())
+        if(offset + 6 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -93,13 +99,18 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             updateTime_=std::make_shared<std::string>(r[index].as<std::string>());
         }
+        index = offset + 5;
+        if(!r[index].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
     }
 
 }
 
 Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -142,6 +153,14 @@ Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMa
         if(!pJson[pMasqueradingVector[4]].isNull())
         {
             updateTime_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
+        }
+    }
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
         }
     }
 }
@@ -188,12 +207,20 @@ Settings::Settings(const Json::Value &pJson) noexcept(false)
             updateTime_=std::make_shared<std::string>(pJson["update_time"].asString());
         }
     }
+    if(pJson.isMember("device_name"))
+    {
+        dirtyFlag_[5]=true;
+        if(!pJson["device_name"].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(pJson["device_name"].asString());
+        }
+    }
 }
 
 void Settings::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -237,6 +264,14 @@ void Settings::updateByMasqueradedJson(const Json::Value &pJson,
             updateTime_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
+        }
+    }
 }
 
 void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -278,6 +313,14 @@ void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["update_time"].isNull())
         {
             updateTime_=std::make_shared<std::string>(pJson["update_time"].asString());
+        }
+    }
+    if(pJson.isMember("device_name"))
+    {
+        dirtyFlag_[5] = true;
+        if(!pJson["device_name"].isNull())
+        {
+            deviceName_=std::make_shared<std::string>(pJson["device_name"].asString());
         }
     }
 }
@@ -412,6 +455,33 @@ void Settings::setUpdateTimeToNull() noexcept
     dirtyFlag_[4] = true;
 }
 
+const std::string &Settings::getValueOfDeviceName() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(deviceName_)
+        return *deviceName_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getDeviceName() const noexcept
+{
+    return deviceName_;
+}
+void Settings::setDeviceName(const std::string &pDeviceName) noexcept
+{
+    deviceName_ = std::make_shared<std::string>(pDeviceName);
+    dirtyFlag_[5] = true;
+}
+void Settings::setDeviceName(std::string &&pDeviceName) noexcept
+{
+    deviceName_ = std::make_shared<std::string>(std::move(pDeviceName));
+    dirtyFlag_[5] = true;
+}
+void Settings::setDeviceNameToNull() noexcept
+{
+    deviceName_.reset();
+    dirtyFlag_[5] = true;
+}
+
 void Settings::updateId(const uint64_t id)
 {
     id_ = std::make_shared<uint64_t>(id);
@@ -423,7 +493,8 @@ const std::vector<std::string> &Settings::insertColumns() noexcept
         "distance_steel",
         "distance_camera",
         "camera_address",
-        "update_time"
+        "update_time",
+        "device_name"
     };
     return inCols;
 }
@@ -474,6 +545,17 @@ void Settings::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[5])
+    {
+        if(getDeviceName())
+        {
+            binder << getValueOfDeviceName();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Settings::updateColumns() const
@@ -494,6 +576,10 @@ const std::vector<std::string> Settings::updateColumns() const
     if(dirtyFlag_[4])
     {
         ret.push_back(getColumnName(4));
+    }
+    if(dirtyFlag_[5])
+    {
+        ret.push_back(getColumnName(5));
     }
     return ret;
 }
@@ -544,6 +630,17 @@ void Settings::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[5])
+    {
+        if(getDeviceName())
+        {
+            binder << getValueOfDeviceName();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Settings::toJson() const
 {
@@ -588,6 +685,14 @@ Json::Value Settings::toJson() const
     {
         ret["update_time"]=Json::Value();
     }
+    if(getDeviceName())
+    {
+        ret["device_name"]=getValueOfDeviceName();
+    }
+    else
+    {
+        ret["device_name"]=Json::Value();
+    }
     return ret;
 }
 
@@ -595,7 +700,7 @@ Json::Value Settings::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 5)
+    if(pMasqueradingVector.size() == 6)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -652,6 +757,17 @@ Json::Value Settings::toMasqueradedJson(
                 ret[pMasqueradingVector[4]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[5].empty())
+        {
+            if(getDeviceName())
+            {
+                ret[pMasqueradingVector[5]]=getValueOfDeviceName();
+            }
+            else
+            {
+                ret[pMasqueradingVector[5]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -695,6 +811,14 @@ Json::Value Settings::toMasqueradedJson(
     {
         ret["update_time"]=Json::Value();
     }
+    if(getDeviceName())
+    {
+        ret["device_name"]=getValueOfDeviceName();
+    }
+    else
+    {
+        ret["device_name"]=Json::Value();
+    }
     return ret;
 }
 
@@ -725,13 +849,18 @@ bool Settings::validateJsonForCreation(const Json::Value &pJson, std::string &er
         if(!validJsonOfField(4, "update_time", pJson["update_time"], err, true))
             return false;
     }
+    if(pJson.isMember("device_name"))
+    {
+        if(!validJsonOfField(5, "device_name", pJson["device_name"], err, true))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                   const std::vector<std::string> &pMasqueradingVector,
                                                   std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         err = "Bad masquerading vector";
         return false;
@@ -777,6 +906,14 @@ bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[5].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[5]))
+          {
+              if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -817,13 +954,18 @@ bool Settings::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(4, "update_time", pJson["update_time"], err, false))
             return false;
     }
+    if(pJson.isMember("device_name"))
+    {
+        if(!validJsonOfField(5, "device_name", pJson["device_name"], err, false))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 5)
+    if(pMasqueradingVector.size() != 6)
     {
         err = "Bad masquerading vector";
         return false;
@@ -857,6 +999,11 @@ bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
       {
           if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+      {
+          if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, false))
               return false;
       }
     }
@@ -926,6 +1073,17 @@ bool Settings::validJsonOfField(size_t index,
             }
             break;
         case 4:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 5:
             if(pJson.isNull())
             {
                 return true;

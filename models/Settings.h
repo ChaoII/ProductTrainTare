@@ -47,6 +47,7 @@ class Settings
         static const std::string _distance_camera;
         static const std::string _camera_address;
         static const std::string _update_time;
+        static const std::string _device_name;
     };
 
     const static int primaryKeyNumber;
@@ -146,8 +147,18 @@ class Settings
     void setUpdateTime(std::string &&pUpdateTime) noexcept;
     void setUpdateTimeToNull() noexcept;
 
+    /**  For column device_name  */
+    ///Get the value of the column device_name, returns the default value if the column is null
+    const std::string &getValueOfDeviceName() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getDeviceName() const noexcept;
+    ///Set the value of the column device_name
+    void setDeviceName(const std::string &pDeviceName) noexcept;
+    void setDeviceName(std::string &&pDeviceName) noexcept;
+    void setDeviceNameToNull() noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 5;  }
+
+    static size_t getColumnNumber() noexcept {  return 6;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -169,6 +180,7 @@ class Settings
     std::shared_ptr<std::string> distanceCamera_;
     std::shared_ptr<std::string> cameraAddress_;
     std::shared_ptr<std::string> updateTime_;
+    std::shared_ptr<std::string> deviceName_;
     struct MetaData
     {
         const std::string colName_;
@@ -180,7 +192,7 @@ class Settings
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[5]={ false };
+    bool dirtyFlag_[6]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -218,6 +230,11 @@ class Settings
             sql += "update_time,";
             ++parametersCount;
         }
+        if(dirtyFlag_[5])
+        {
+            sql += "device_name,";
+            ++parametersCount;
+        }
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -242,6 +259,11 @@ class Settings
 
         }
         if(dirtyFlag_[4])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[5])
         {
             sql.append("?,");
 

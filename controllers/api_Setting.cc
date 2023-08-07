@@ -13,11 +13,13 @@ void Setting::get_settings(const HttpRequestPtr &req, std::function<void(const H
     Mapper<Settings> mp(drogon::app().getDbClient());
     auto settings = mp.findAll();
     if (settings.empty()) {
+        sub["deviceName"] = "-";
         sub["distanceSteel"] = 0;
         sub["distanceCamera"] = 0;
         sub["cameraAddress"] = "-";
     } else {
         Settings setting = settings[0];
+        sub["deviceName"] = setting.getValueOfDeviceName();
         sub["distanceSteel"] = setting.getValueOfDistanceSteel();
         sub["distanceCamera"] = setting.getValueOfDistanceCamera();
         sub["cameraAddress"] = setting.getValueOfCameraAddress();
@@ -40,6 +42,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         callback(resp);
         return;
     }
+    std::string device_name = obj->get("deviceName", "").asString();
     std::string distance_steel = obj->get("distanceSteel", "").asString();
     std::string distance_camera = obj->get("distanceCamera", "").asString();
     std::string camera_address = obj->get("cameraAddress", "").asString();
@@ -47,6 +50,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
     auto settings = mp.findAll();
     if (settings.empty()) {
         Settings setting;
+        setting.setDeviceName(device_name);
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
@@ -54,6 +58,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         mp.insert(setting);
     } else {
         Settings setting = settings[0];
+        setting.setDeviceName(device_name);
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
