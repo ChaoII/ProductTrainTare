@@ -71,3 +71,13 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);
 }
+
+
+void Setting::restart_device(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+    Json::Value result;
+    result["code"] = 0;
+    result["data"] = {};
+    result["msg"] = "restart success";
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);;
+}
