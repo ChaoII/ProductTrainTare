@@ -77,7 +77,7 @@ void Train::get_history(const HttpRequestPtr &req, std::function<void(const Http
             (page_index - 1) * page_size).findBy(conditions);
     size_t total = mp.count(conditions);
     for (auto &history: histories) {
-        sub["id"] = history.getValueOfId();
+        sub["id"] = std::to_string(history.getValueOfId());
         sub["dateTime"] = history.getValueOfTime();
         sub["trainMode"] = history.getValueOfTrainMode();
         sub["trainNum"] = history.getValueOfTrainNum();
@@ -96,6 +96,59 @@ void Train::get_history(const HttpRequestPtr &req, std::function<void(const Http
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);
 }
+
+void Train::update_history(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
+
+    Json::Value result, root, history_list, sub;
+    auto obj = req->getJsonObject();
+    if (obj == nullptr) {
+        result["code"] = -1;
+        result["data"] = {};
+        result["msg"] = "request params error";
+        auto resp = HttpResponse::newHttpJsonResponse(result);
+        callback(resp);
+        return;
+    }
+    std::string id = obj->get("id", "").asString();
+    std::string train_mode = obj->get("trainMode", "").asString();
+    std::string train_num = obj->get("trainNum", "").asString();
+    std::string dead_weight = obj->get("deadWeight", "").asString();
+    std::string rough_weight = obj->get("roughWeight", "").asString();
+    std::string volume = obj->get("volume", "").asString();
+    std::string length = obj->get("length", "").asString();
+
+
+    LOG_INFO << id;
+    Mapper<Historys> mp(drogon::app().getDbClient());
+    auto train_details = mp.findBy(Criteria(Historys::Cols::_id, CompareOperator::EQ, id));
+    if (train_details.empty()) {
+        result["code"] = -1;
+        result["data"] = {};
+        result["msg"] = "train_id is not existed";
+        auto resp = HttpResponse::newHttpJsonResponse(result);
+        callback(resp);
+        return;
+    }
+    Historys train_detail = train_details[0];
+    train_detail.setTrainMode(train_mode);
+    train_detail.setTrainNum(train_num);
+    train_detail.setDeadWeight(dead_weight);
+    train_detail.setRoughWeight(rough_weight);
+    train_detail.setVolume(volume);
+    train_detail.setLength(length);
+    size_t count = mp.update(train_detail);
+    result["data"] = count;
+    if (count > 0) {
+        result["code"] = 0;
+        result["msg"] = "update success";
+    } else {
+        result["code"] = 0;
+        result["msg"] = "update failed";
+    }
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);
+}
+
 
 void Train::get_latest(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
     Mapper<Historys> mp(drogon::app().getDbClient());

@@ -95,7 +95,30 @@ cv::Mat Custom::concat_mat_horizontal(const cv::Mat &m1, const cv::Mat &m2) {
     cv::Mat ROI_2 = resultImg(cv::Rect(w1, 0, w2, h2));
     m1.copyTo(ROI_1);
     m2.copyTo(ROI_2);
+    return resultImg;
+}
 
+
+cv::Mat Custom::concat_mat_vertical(const cv::Mat &m1, const cv::Mat &m2) {
+    if (m1.empty() || m2.empty()) {
+        LOG_ERROR << "mat is empty please check the image is correct";
+    }
+    int w1 = m1.cols;
+    int h1 = m1.rows;
+    int w2 = m2.cols;
+    int h2 = m2.rows;
+    if (!(w1 == w2 && h1 == h2)) {
+        LOG_ERROR << "two images' shape must be equal current is : h1 = " << h1 << "h2=" << h2 << "w1=" << w1 << "w2="
+                  << w2;
+    }
+    int width = max(w1, w2);
+    int height = h1 + h2;
+    cv::Mat resultImg = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(5));
+
+    cv::Mat ROI_1 = resultImg(cv::Rect(0, 0, w1, h1));
+    cv::Mat ROI_2 = resultImg(cv::Rect(0, h1, w2, h2));
+    m1.copyTo(ROI_1);
+    m2.copyTo(ROI_2);
     return resultImg;
 }
 
@@ -104,6 +127,7 @@ std::string Custom::front_time_to_backend(const string &fronted_time) {
     auto parts = drogon::utils::splitString(fronted_time, "T");
     if (parts.size() != 2) {
         LOG_ERROR << "time format error";
+        return "";
     }
     std::string time = parts[1];
     replace_str(time, "Z", "");

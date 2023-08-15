@@ -250,7 +250,7 @@ void PPOCR::postprocess(const cv::Mat &img, const std::string &cur_time) {
     auto clientPtr = drogon::app().getDbClient();
     int cur_case_index = count_ / 2;
     if (last_case_index_ == cur_case_index) {
-        cv::Mat result_img = drogon::Custom::concat_mat_horizontal(last_image_, img);
+        cv::Mat result_img = drogon::Custom::concat_mat_vertical(last_image_, img);
         std::string result_file_name = cur_time + "_" + std::to_string(cur_case_index) + ".jpg";
         fs::path result_path = fs::path(dir_name_) / fs::path("result") / result_file_name;
         cv::imwrite(result_path.string(), result_img);
