@@ -23,6 +23,10 @@ void Setting::get_settings(const HttpRequestPtr &req, std::function<void(const H
         sub["distanceSteel"] = setting.getValueOfDistanceSteel();
         sub["distanceCamera"] = setting.getValueOfDistanceCamera();
         sub["cameraAddress"] = setting.getValueOfCameraAddress();
+        sub["customParam"] = setting.getValueOfCustomParam();
+        sub["deviceVersion"] = setting.getValueOfDeviceVersion();
+        sub["algorithmVersion"] = setting.getValueOfAlgorithmVersion();
+        sub["systemVersion"] = setting.getValueOfSystemversion();
     }
     result["code"] = 0;
     result["data"] = sub;
@@ -42,10 +46,20 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         callback(resp);
         return;
     }
+
+
     std::string device_name = obj->get("deviceName", "").asString();
     std::string distance_steel = obj->get("distanceSteel", "").asString();
     std::string distance_camera = obj->get("distanceCamera", "").asString();
     std::string camera_address = obj->get("cameraAddress", "").asString();
+    std::string custom_param = obj->get("customParam", "").asString();
+    std::string current_dateTime = obj->get("currentDateTime", "").asString();
+    std::string device_version = obj->get("deviceVersion", "").asString();
+    std::string algorithm_version = obj->get("algorithmVersion", "").asString();
+    std::string system_version = obj->get("systemVersion", "").asString();
+
+    LOG_INFO << current_dateTime;
+
     Mapper<Settings> mp(drogon::app().getDbClient());
     auto settings = mp.findAll();
     if (settings.empty()) {
@@ -54,6 +68,12 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
+        setting.setCustomParam(custom_param);
+        setting.setDeviceVersion(device_version);
+        setting.setAlgorithmVersion(algorithm_version);
+        setting.setSystemversion(system_version);
+        //todo: add update device date time
+
         setting.setUpdateTime(trantor::Date::now().toCustomedFormattedStringLocal("%Y-%m-%d %H:%M:%S"));
         mp.insert(setting);
     } else {
@@ -62,6 +82,11 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
+        setting.setCustomParam(custom_param);
+        setting.setDeviceVersion(device_version);
+        setting.setAlgorithmVersion(algorithm_version);
+        setting.setSystemversion(system_version);
+        //todo: add update device date time
         setting.setUpdateTime(trantor::Date::now().toCustomedFormattedStringLocal("%Y-%m-%d %H:%M:%S"));
         mp.update(setting);
     }

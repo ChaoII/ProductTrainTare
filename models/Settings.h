@@ -48,6 +48,10 @@ class Settings
         static const std::string _camera_address;
         static const std::string _update_time;
         static const std::string _device_name;
+        static const std::string _custom_param;
+        static const std::string _algorithm_version;
+        static const std::string _systemVersion;
+        static const std::string _device_version;
     };
 
     const static int primaryKeyNumber;
@@ -157,8 +161,48 @@ class Settings
     void setDeviceName(std::string &&pDeviceName) noexcept;
     void setDeviceNameToNull() noexcept;
 
+    /**  For column custom_param  */
+    ///Get the value of the column custom_param, returns the default value if the column is null
+    const std::string &getValueOfCustomParam() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getCustomParam() const noexcept;
+    ///Set the value of the column custom_param
+    void setCustomParam(const std::string &pCustomParam) noexcept;
+    void setCustomParam(std::string &&pCustomParam) noexcept;
+    void setCustomParamToNull() noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 6;  }
+    /**  For column algorithm_version  */
+    ///Get the value of the column algorithm_version, returns the default value if the column is null
+    const std::string &getValueOfAlgorithmVersion() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getAlgorithmVersion() const noexcept;
+    ///Set the value of the column algorithm_version
+    void setAlgorithmVersion(const std::string &pAlgorithmVersion) noexcept;
+    void setAlgorithmVersion(std::string &&pAlgorithmVersion) noexcept;
+    void setAlgorithmVersionToNull() noexcept;
+
+    /**  For column systemVersion  */
+    ///Get the value of the column systemVersion, returns the default value if the column is null
+    const std::string &getValueOfSystemversion() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getSystemversion() const noexcept;
+    ///Set the value of the column systemVersion
+    void setSystemversion(const std::string &pSystemversion) noexcept;
+    void setSystemversion(std::string &&pSystemversion) noexcept;
+    void setSystemversionToNull() noexcept;
+
+    /**  For column device_version  */
+    ///Get the value of the column device_version, returns the default value if the column is null
+    const std::string &getValueOfDeviceVersion() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getDeviceVersion() const noexcept;
+    ///Set the value of the column device_version
+    void setDeviceVersion(const std::string &pDeviceVersion) noexcept;
+    void setDeviceVersion(std::string &&pDeviceVersion) noexcept;
+    void setDeviceVersionToNull() noexcept;
+
+
+    static size_t getColumnNumber() noexcept {  return 10;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -181,6 +225,10 @@ class Settings
     std::shared_ptr<std::string> cameraAddress_;
     std::shared_ptr<std::string> updateTime_;
     std::shared_ptr<std::string> deviceName_;
+    std::shared_ptr<std::string> customParam_;
+    std::shared_ptr<std::string> algorithmVersion_;
+    std::shared_ptr<std::string> systemversion_;
+    std::shared_ptr<std::string> deviceVersion_;
     struct MetaData
     {
         const std::string colName_;
@@ -192,7 +240,7 @@ class Settings
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[6]={ false };
+    bool dirtyFlag_[10]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -235,6 +283,26 @@ class Settings
             sql += "device_name,";
             ++parametersCount;
         }
+        if(dirtyFlag_[6])
+        {
+            sql += "custom_param,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[7])
+        {
+            sql += "algorithm_version,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[8])
+        {
+            sql += "systemVersion,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[9])
+        {
+            sql += "device_version,";
+            ++parametersCount;
+        }
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -264,6 +332,26 @@ class Settings
 
         }
         if(dirtyFlag_[5])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[6])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[7])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[8])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[9])
         {
             sql.append("?,");
 

@@ -19,6 +19,10 @@ const std::string Settings::Cols::_distance_camera = "distance_camera";
 const std::string Settings::Cols::_camera_address = "camera_address";
 const std::string Settings::Cols::_update_time = "update_time";
 const std::string Settings::Cols::_device_name = "device_name";
+const std::string Settings::Cols::_custom_param = "custom_param";
+const std::string Settings::Cols::_algorithm_version = "algorithm_version";
+const std::string Settings::Cols::_systemVersion = "systemVersion";
+const std::string Settings::Cols::_device_version = "device_version";
 const std::string Settings::primaryKeyName = "id";
 const bool Settings::hasPrimaryKey = true;
 const std::string Settings::tableName = "settings";
@@ -29,7 +33,11 @@ const std::vector<typename Settings::MetaData> Settings::metaData_={
 {"distance_camera","std::string","text",0,0,0,0},
 {"camera_address","std::string","text",0,0,0,0},
 {"update_time","std::string","text",0,0,0,0},
-{"device_name","std::string","text",0,0,0,0}
+{"device_name","std::string","text",0,0,0,0},
+{"custom_param","std::string","text",0,0,0,0},
+{"algorithm_version","std::string","text",0,0,0,0},
+{"systemVersion","std::string","text",0,0,0,0},
+{"device_version","std::string","text",0,0,0,0}
 };
 const std::string &Settings::getColumnName(size_t index) noexcept(false)
 {
@@ -64,11 +72,27 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             deviceName_=std::make_shared<std::string>(r["device_name"].as<std::string>());
         }
+        if(!r["custom_param"].isNull())
+        {
+            customParam_=std::make_shared<std::string>(r["custom_param"].as<std::string>());
+        }
+        if(!r["algorithm_version"].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(r["algorithm_version"].as<std::string>());
+        }
+        if(!r["systemVersion"].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(r["systemVersion"].as<std::string>());
+        }
+        if(!r["device_version"].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(r["device_version"].as<std::string>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 6 > r.size())
+        if(offset + 10 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -104,13 +128,33 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             deviceName_=std::make_shared<std::string>(r[index].as<std::string>());
         }
+        index = offset + 6;
+        if(!r[index].isNull())
+        {
+            customParam_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
+        index = offset + 7;
+        if(!r[index].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
+        index = offset + 8;
+        if(!r[index].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
+        index = offset + 9;
+        if(!r[index].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
     }
 
 }
 
 Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 6)
+    if(pMasqueradingVector.size() != 10)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -161,6 +205,38 @@ Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMa
         if(!pJson[pMasqueradingVector[5]].isNull())
         {
             deviceName_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
+        }
+    }
+    if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+    {
+        dirtyFlag_[6] = true;
+        if(!pJson[pMasqueradingVector[6]].isNull())
+        {
+            customParam_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
+        }
+    }
+    if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+    {
+        dirtyFlag_[7] = true;
+        if(!pJson[pMasqueradingVector[7]].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(pJson[pMasqueradingVector[8]].asString());
+        }
+    }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[9]].asString());
         }
     }
 }
@@ -215,12 +291,44 @@ Settings::Settings(const Json::Value &pJson) noexcept(false)
             deviceName_=std::make_shared<std::string>(pJson["device_name"].asString());
         }
     }
+    if(pJson.isMember("custom_param"))
+    {
+        dirtyFlag_[6]=true;
+        if(!pJson["custom_param"].isNull())
+        {
+            customParam_=std::make_shared<std::string>(pJson["custom_param"].asString());
+        }
+    }
+    if(pJson.isMember("algorithm_version"))
+    {
+        dirtyFlag_[7]=true;
+        if(!pJson["algorithm_version"].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(pJson["algorithm_version"].asString());
+        }
+    }
+    if(pJson.isMember("systemVersion"))
+    {
+        dirtyFlag_[8]=true;
+        if(!pJson["systemVersion"].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(pJson["systemVersion"].asString());
+        }
+    }
+    if(pJson.isMember("device_version"))
+    {
+        dirtyFlag_[9]=true;
+        if(!pJson["device_version"].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(pJson["device_version"].asString());
+        }
+    }
 }
 
 void Settings::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 6)
+    if(pMasqueradingVector.size() != 10)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -272,6 +380,38 @@ void Settings::updateByMasqueradedJson(const Json::Value &pJson,
             deviceName_=std::make_shared<std::string>(pJson[pMasqueradingVector[5]].asString());
         }
     }
+    if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+    {
+        dirtyFlag_[6] = true;
+        if(!pJson[pMasqueradingVector[6]].isNull())
+        {
+            customParam_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
+        }
+    }
+    if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+    {
+        dirtyFlag_[7] = true;
+        if(!pJson[pMasqueradingVector[7]].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(pJson[pMasqueradingVector[8]].asString());
+        }
+    }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[9]].asString());
+        }
+    }
 }
 
 void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -321,6 +461,38 @@ void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["device_name"].isNull())
         {
             deviceName_=std::make_shared<std::string>(pJson["device_name"].asString());
+        }
+    }
+    if(pJson.isMember("custom_param"))
+    {
+        dirtyFlag_[6] = true;
+        if(!pJson["custom_param"].isNull())
+        {
+            customParam_=std::make_shared<std::string>(pJson["custom_param"].asString());
+        }
+    }
+    if(pJson.isMember("algorithm_version"))
+    {
+        dirtyFlag_[7] = true;
+        if(!pJson["algorithm_version"].isNull())
+        {
+            algorithmVersion_=std::make_shared<std::string>(pJson["algorithm_version"].asString());
+        }
+    }
+    if(pJson.isMember("systemVersion"))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson["systemVersion"].isNull())
+        {
+            systemversion_=std::make_shared<std::string>(pJson["systemVersion"].asString());
+        }
+    }
+    if(pJson.isMember("device_version"))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson["device_version"].isNull())
+        {
+            deviceVersion_=std::make_shared<std::string>(pJson["device_version"].asString());
         }
     }
 }
@@ -482,6 +654,114 @@ void Settings::setDeviceNameToNull() noexcept
     dirtyFlag_[5] = true;
 }
 
+const std::string &Settings::getValueOfCustomParam() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(customParam_)
+        return *customParam_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getCustomParam() const noexcept
+{
+    return customParam_;
+}
+void Settings::setCustomParam(const std::string &pCustomParam) noexcept
+{
+    customParam_ = std::make_shared<std::string>(pCustomParam);
+    dirtyFlag_[6] = true;
+}
+void Settings::setCustomParam(std::string &&pCustomParam) noexcept
+{
+    customParam_ = std::make_shared<std::string>(std::move(pCustomParam));
+    dirtyFlag_[6] = true;
+}
+void Settings::setCustomParamToNull() noexcept
+{
+    customParam_.reset();
+    dirtyFlag_[6] = true;
+}
+
+const std::string &Settings::getValueOfAlgorithmVersion() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(algorithmVersion_)
+        return *algorithmVersion_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getAlgorithmVersion() const noexcept
+{
+    return algorithmVersion_;
+}
+void Settings::setAlgorithmVersion(const std::string &pAlgorithmVersion) noexcept
+{
+    algorithmVersion_ = std::make_shared<std::string>(pAlgorithmVersion);
+    dirtyFlag_[7] = true;
+}
+void Settings::setAlgorithmVersion(std::string &&pAlgorithmVersion) noexcept
+{
+    algorithmVersion_ = std::make_shared<std::string>(std::move(pAlgorithmVersion));
+    dirtyFlag_[7] = true;
+}
+void Settings::setAlgorithmVersionToNull() noexcept
+{
+    algorithmVersion_.reset();
+    dirtyFlag_[7] = true;
+}
+
+const std::string &Settings::getValueOfSystemversion() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(systemversion_)
+        return *systemversion_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getSystemversion() const noexcept
+{
+    return systemversion_;
+}
+void Settings::setSystemversion(const std::string &pSystemversion) noexcept
+{
+    systemversion_ = std::make_shared<std::string>(pSystemversion);
+    dirtyFlag_[8] = true;
+}
+void Settings::setSystemversion(std::string &&pSystemversion) noexcept
+{
+    systemversion_ = std::make_shared<std::string>(std::move(pSystemversion));
+    dirtyFlag_[8] = true;
+}
+void Settings::setSystemversionToNull() noexcept
+{
+    systemversion_.reset();
+    dirtyFlag_[8] = true;
+}
+
+const std::string &Settings::getValueOfDeviceVersion() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(deviceVersion_)
+        return *deviceVersion_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getDeviceVersion() const noexcept
+{
+    return deviceVersion_;
+}
+void Settings::setDeviceVersion(const std::string &pDeviceVersion) noexcept
+{
+    deviceVersion_ = std::make_shared<std::string>(pDeviceVersion);
+    dirtyFlag_[9] = true;
+}
+void Settings::setDeviceVersion(std::string &&pDeviceVersion) noexcept
+{
+    deviceVersion_ = std::make_shared<std::string>(std::move(pDeviceVersion));
+    dirtyFlag_[9] = true;
+}
+void Settings::setDeviceVersionToNull() noexcept
+{
+    deviceVersion_.reset();
+    dirtyFlag_[9] = true;
+}
+
 void Settings::updateId(const uint64_t id)
 {
     id_ = std::make_shared<uint64_t>(id);
@@ -494,7 +774,11 @@ const std::vector<std::string> &Settings::insertColumns() noexcept
         "distance_camera",
         "camera_address",
         "update_time",
-        "device_name"
+        "device_name",
+        "custom_param",
+        "algorithm_version",
+        "systemVersion",
+        "device_version"
     };
     return inCols;
 }
@@ -556,6 +840,50 @@ void Settings::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[6])
+    {
+        if(getCustomParam())
+        {
+            binder << getValueOfCustomParam();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[7])
+    {
+        if(getAlgorithmVersion())
+        {
+            binder << getValueOfAlgorithmVersion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[8])
+    {
+        if(getSystemversion())
+        {
+            binder << getValueOfSystemversion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[9])
+    {
+        if(getDeviceVersion())
+        {
+            binder << getValueOfDeviceVersion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Settings::updateColumns() const
@@ -580,6 +908,22 @@ const std::vector<std::string> Settings::updateColumns() const
     if(dirtyFlag_[5])
     {
         ret.push_back(getColumnName(5));
+    }
+    if(dirtyFlag_[6])
+    {
+        ret.push_back(getColumnName(6));
+    }
+    if(dirtyFlag_[7])
+    {
+        ret.push_back(getColumnName(7));
+    }
+    if(dirtyFlag_[8])
+    {
+        ret.push_back(getColumnName(8));
+    }
+    if(dirtyFlag_[9])
+    {
+        ret.push_back(getColumnName(9));
     }
     return ret;
 }
@@ -641,6 +985,50 @@ void Settings::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[6])
+    {
+        if(getCustomParam())
+        {
+            binder << getValueOfCustomParam();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[7])
+    {
+        if(getAlgorithmVersion())
+        {
+            binder << getValueOfAlgorithmVersion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[8])
+    {
+        if(getSystemversion())
+        {
+            binder << getValueOfSystemversion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[9])
+    {
+        if(getDeviceVersion())
+        {
+            binder << getValueOfDeviceVersion();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Settings::toJson() const
 {
@@ -693,6 +1081,38 @@ Json::Value Settings::toJson() const
     {
         ret["device_name"]=Json::Value();
     }
+    if(getCustomParam())
+    {
+        ret["custom_param"]=getValueOfCustomParam();
+    }
+    else
+    {
+        ret["custom_param"]=Json::Value();
+    }
+    if(getAlgorithmVersion())
+    {
+        ret["algorithm_version"]=getValueOfAlgorithmVersion();
+    }
+    else
+    {
+        ret["algorithm_version"]=Json::Value();
+    }
+    if(getSystemversion())
+    {
+        ret["systemVersion"]=getValueOfSystemversion();
+    }
+    else
+    {
+        ret["systemVersion"]=Json::Value();
+    }
+    if(getDeviceVersion())
+    {
+        ret["device_version"]=getValueOfDeviceVersion();
+    }
+    else
+    {
+        ret["device_version"]=Json::Value();
+    }
     return ret;
 }
 
@@ -700,7 +1120,7 @@ Json::Value Settings::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 6)
+    if(pMasqueradingVector.size() == 10)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -768,6 +1188,50 @@ Json::Value Settings::toMasqueradedJson(
                 ret[pMasqueradingVector[5]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[6].empty())
+        {
+            if(getCustomParam())
+            {
+                ret[pMasqueradingVector[6]]=getValueOfCustomParam();
+            }
+            else
+            {
+                ret[pMasqueradingVector[6]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[7].empty())
+        {
+            if(getAlgorithmVersion())
+            {
+                ret[pMasqueradingVector[7]]=getValueOfAlgorithmVersion();
+            }
+            else
+            {
+                ret[pMasqueradingVector[7]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[8].empty())
+        {
+            if(getSystemversion())
+            {
+                ret[pMasqueradingVector[8]]=getValueOfSystemversion();
+            }
+            else
+            {
+                ret[pMasqueradingVector[8]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[9].empty())
+        {
+            if(getDeviceVersion())
+            {
+                ret[pMasqueradingVector[9]]=getValueOfDeviceVersion();
+            }
+            else
+            {
+                ret[pMasqueradingVector[9]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -819,6 +1283,38 @@ Json::Value Settings::toMasqueradedJson(
     {
         ret["device_name"]=Json::Value();
     }
+    if(getCustomParam())
+    {
+        ret["custom_param"]=getValueOfCustomParam();
+    }
+    else
+    {
+        ret["custom_param"]=Json::Value();
+    }
+    if(getAlgorithmVersion())
+    {
+        ret["algorithm_version"]=getValueOfAlgorithmVersion();
+    }
+    else
+    {
+        ret["algorithm_version"]=Json::Value();
+    }
+    if(getSystemversion())
+    {
+        ret["systemVersion"]=getValueOfSystemversion();
+    }
+    else
+    {
+        ret["systemVersion"]=Json::Value();
+    }
+    if(getDeviceVersion())
+    {
+        ret["device_version"]=getValueOfDeviceVersion();
+    }
+    else
+    {
+        ret["device_version"]=Json::Value();
+    }
     return ret;
 }
 
@@ -854,13 +1350,33 @@ bool Settings::validateJsonForCreation(const Json::Value &pJson, std::string &er
         if(!validJsonOfField(5, "device_name", pJson["device_name"], err, true))
             return false;
     }
+    if(pJson.isMember("custom_param"))
+    {
+        if(!validJsonOfField(6, "custom_param", pJson["custom_param"], err, true))
+            return false;
+    }
+    if(pJson.isMember("algorithm_version"))
+    {
+        if(!validJsonOfField(7, "algorithm_version", pJson["algorithm_version"], err, true))
+            return false;
+    }
+    if(pJson.isMember("systemVersion"))
+    {
+        if(!validJsonOfField(8, "systemVersion", pJson["systemVersion"], err, true))
+            return false;
+    }
+    if(pJson.isMember("device_version"))
+    {
+        if(!validJsonOfField(9, "device_version", pJson["device_version"], err, true))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                   const std::vector<std::string> &pMasqueradingVector,
                                                   std::string &err)
 {
-    if(pMasqueradingVector.size() != 6)
+    if(pMasqueradingVector.size() != 10)
     {
         err = "Bad masquerading vector";
         return false;
@@ -914,6 +1430,38 @@ bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[6].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[6]))
+          {
+              if(!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[7].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[7]))
+          {
+              if(!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[8].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[8]))
+          {
+              if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[9].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[9]))
+          {
+              if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -959,13 +1507,33 @@ bool Settings::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(5, "device_name", pJson["device_name"], err, false))
             return false;
     }
+    if(pJson.isMember("custom_param"))
+    {
+        if(!validJsonOfField(6, "custom_param", pJson["custom_param"], err, false))
+            return false;
+    }
+    if(pJson.isMember("algorithm_version"))
+    {
+        if(!validJsonOfField(7, "algorithm_version", pJson["algorithm_version"], err, false))
+            return false;
+    }
+    if(pJson.isMember("systemVersion"))
+    {
+        if(!validJsonOfField(8, "systemVersion", pJson["systemVersion"], err, false))
+            return false;
+    }
+    if(pJson.isMember("device_version"))
+    {
+        if(!validJsonOfField(9, "device_version", pJson["device_version"], err, false))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 6)
+    if(pMasqueradingVector.size() != 10)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1004,6 +1572,26 @@ bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
       {
           if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+      {
+          if(!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+      {
+          if(!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+      {
+          if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+      {
+          if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, false))
               return false;
       }
     }
@@ -1084,6 +1672,50 @@ bool Settings::validJsonOfField(size_t index,
             }
             break;
         case 5:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 6:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 7:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 8:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 9:
             if(pJson.isNull())
             {
                 return true;
