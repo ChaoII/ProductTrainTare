@@ -147,7 +147,8 @@
             "eot",
             "ttf",
             "svg",
-            "map"
+            "map",
+            "mp4"
         ],
         //locations: An array of locations of static files for GET requests.
         "locations": [
