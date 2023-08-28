@@ -77,6 +77,8 @@ target_sources(${PROJECT_NAME}
         PRIVATE ${SRC_DIR} ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC}
         ${MODEL_SRC} ${CUSTOM_SRC} ${TASK_SRC})
 
+
+target_compile_options(${PROJECT_NAME} PRIVATE "/utf-8")
 # 复制文件
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD

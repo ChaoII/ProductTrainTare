@@ -23,6 +23,7 @@ void Setting::get_settings(const HttpRequestPtr &req, std::function<void(const H
         sub["distanceSteel"] = setting.getValueOfDistanceSteel();
         sub["distanceCamera"] = setting.getValueOfDistanceCamera();
         sub["cameraAddress"] = setting.getValueOfCameraAddress();
+        sub["mediaAddress"] = setting.getValueOfMediaAddress();
         sub["customParam"] = setting.getValueOfCustomParam();
         sub["deviceVersion"] = setting.getValueOfDeviceVersion();
         sub["algorithmVersion"] = setting.getValueOfAlgorithmVersion();
@@ -52,6 +53,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
     std::string distance_steel = obj->get("distanceSteel", "").asString();
     std::string distance_camera = obj->get("distanceCamera", "").asString();
     std::string camera_address = obj->get("cameraAddress", "").asString();
+    std::string media_address = obj->get("mediaAddress", "").asString();
     std::string custom_param = obj->get("customParam", "").asString();
     std::string current_dateTime = obj->get("currentDateTime", "").asString();
     std::string device_version = obj->get("deviceVersion", "").asString();
@@ -68,6 +70,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
+        setting.setMediaAddress(media_address);
         setting.setCustomParam(custom_param);
         setting.setDeviceVersion(device_version);
         setting.setAlgorithmVersion(algorithm_version);
@@ -92,6 +95,7 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setDistanceSteel(distance_steel);
         setting.setDistanceCamera(distance_camera);
         setting.setCameraAddress(camera_address);
+        setting.setMediaAddress(media_address);
         setting.setCustomParam(custom_param);
         setting.setDeviceVersion(device_version);
         setting.setAlgorithmVersion(algorithm_version);
@@ -133,7 +137,7 @@ void Setting::restart_device(const HttpRequestPtr &req, std::function<void(const
     Json::Value result;
     result["code"] = -1;
     result["data"] = {};
-    result["msg"] = "restart is supported for current system";
+    result["msg"] = "不支持当前系统";
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);;
 #endif

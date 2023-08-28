@@ -52,6 +52,7 @@ class Settings
         static const std::string _algorithm_version;
         static const std::string _systemVersion;
         static const std::string _device_version;
+        static const std::string _media_address;
     };
 
     const static int primaryKeyNumber;
@@ -201,8 +202,18 @@ class Settings
     void setDeviceVersion(std::string &&pDeviceVersion) noexcept;
     void setDeviceVersionToNull() noexcept;
 
+    /**  For column media_address  */
+    ///Get the value of the column media_address, returns the default value if the column is null
+    const std::string &getValueOfMediaAddress() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getMediaAddress() const noexcept;
+    ///Set the value of the column media_address
+    void setMediaAddress(const std::string &pMediaAddress) noexcept;
+    void setMediaAddress(std::string &&pMediaAddress) noexcept;
+    void setMediaAddressToNull() noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 10;  }
+
+    static size_t getColumnNumber() noexcept {  return 11;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -229,6 +240,7 @@ class Settings
     std::shared_ptr<std::string> algorithmVersion_;
     std::shared_ptr<std::string> systemversion_;
     std::shared_ptr<std::string> deviceVersion_;
+    std::shared_ptr<std::string> mediaAddress_;
     struct MetaData
     {
         const std::string colName_;
@@ -240,7 +252,7 @@ class Settings
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[10]={ false };
+    bool dirtyFlag_[11]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -303,6 +315,11 @@ class Settings
             sql += "device_version,";
             ++parametersCount;
         }
+        if(dirtyFlag_[10])
+        {
+            sql += "media_address,";
+            ++parametersCount;
+        }
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -352,6 +369,11 @@ class Settings
 
         }
         if(dirtyFlag_[9])
+        {
+            sql.append("?,");
+
+        }
+        if(dirtyFlag_[10])
         {
             sql.append("?,");
 

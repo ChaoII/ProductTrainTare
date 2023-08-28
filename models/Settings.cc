@@ -23,6 +23,7 @@ const std::string Settings::Cols::_custom_param = "custom_param";
 const std::string Settings::Cols::_algorithm_version = "algorithm_version";
 const std::string Settings::Cols::_systemVersion = "systemVersion";
 const std::string Settings::Cols::_device_version = "device_version";
+const std::string Settings::Cols::_media_address = "media_address";
 const std::string Settings::primaryKeyName = "id";
 const bool Settings::hasPrimaryKey = true;
 const std::string Settings::tableName = "settings";
@@ -37,7 +38,8 @@ const std::vector<typename Settings::MetaData> Settings::metaData_={
 {"custom_param","std::string","text",0,0,0,0},
 {"algorithm_version","std::string","text",0,0,0,0},
 {"systemVersion","std::string","text",0,0,0,0},
-{"device_version","std::string","text",0,0,0,0}
+{"device_version","std::string","text",0,0,0,0},
+{"media_address","std::string","text",0,0,0,0}
 };
 const std::string &Settings::getColumnName(size_t index) noexcept(false)
 {
@@ -88,11 +90,15 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             deviceVersion_=std::make_shared<std::string>(r["device_version"].as<std::string>());
         }
+        if(!r["media_address"].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(r["media_address"].as<std::string>());
+        }
     }
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 10 > r.size())
+        if(offset + 11 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -148,13 +154,18 @@ Settings::Settings(const Row &r, const ssize_t indexOffset) noexcept
         {
             deviceVersion_=std::make_shared<std::string>(r[index].as<std::string>());
         }
+        index = offset + 10;
+        if(!r[index].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
     }
 
 }
 
 Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 10)
+    if(pMasqueradingVector.size() != 11)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -237,6 +248,14 @@ Settings::Settings(const Json::Value &pJson, const std::vector<std::string> &pMa
         if(!pJson[pMasqueradingVector[9]].isNull())
         {
             deviceVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[9]].asString());
+        }
+    }
+    if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson[pMasqueradingVector[10]].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(pJson[pMasqueradingVector[10]].asString());
         }
     }
 }
@@ -323,12 +342,20 @@ Settings::Settings(const Json::Value &pJson) noexcept(false)
             deviceVersion_=std::make_shared<std::string>(pJson["device_version"].asString());
         }
     }
+    if(pJson.isMember("media_address"))
+    {
+        dirtyFlag_[10]=true;
+        if(!pJson["media_address"].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(pJson["media_address"].asString());
+        }
+    }
 }
 
 void Settings::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 10)
+    if(pMasqueradingVector.size() != 11)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -412,6 +439,14 @@ void Settings::updateByMasqueradedJson(const Json::Value &pJson,
             deviceVersion_=std::make_shared<std::string>(pJson[pMasqueradingVector[9]].asString());
         }
     }
+    if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson[pMasqueradingVector[10]].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(pJson[pMasqueradingVector[10]].asString());
+        }
+    }
 }
 
 void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
@@ -493,6 +528,14 @@ void Settings::updateByJson(const Json::Value &pJson) noexcept(false)
         if(!pJson["device_version"].isNull())
         {
             deviceVersion_=std::make_shared<std::string>(pJson["device_version"].asString());
+        }
+    }
+    if(pJson.isMember("media_address"))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson["media_address"].isNull())
+        {
+            mediaAddress_=std::make_shared<std::string>(pJson["media_address"].asString());
         }
     }
 }
@@ -762,6 +805,33 @@ void Settings::setDeviceVersionToNull() noexcept
     dirtyFlag_[9] = true;
 }
 
+const std::string &Settings::getValueOfMediaAddress() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(mediaAddress_)
+        return *mediaAddress_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Settings::getMediaAddress() const noexcept
+{
+    return mediaAddress_;
+}
+void Settings::setMediaAddress(const std::string &pMediaAddress) noexcept
+{
+    mediaAddress_ = std::make_shared<std::string>(pMediaAddress);
+    dirtyFlag_[10] = true;
+}
+void Settings::setMediaAddress(std::string &&pMediaAddress) noexcept
+{
+    mediaAddress_ = std::make_shared<std::string>(std::move(pMediaAddress));
+    dirtyFlag_[10] = true;
+}
+void Settings::setMediaAddressToNull() noexcept
+{
+    mediaAddress_.reset();
+    dirtyFlag_[10] = true;
+}
+
 void Settings::updateId(const uint64_t id)
 {
     id_ = std::make_shared<uint64_t>(id);
@@ -778,7 +848,8 @@ const std::vector<std::string> &Settings::insertColumns() noexcept
         "custom_param",
         "algorithm_version",
         "systemVersion",
-        "device_version"
+        "device_version",
+        "media_address"
     };
     return inCols;
 }
@@ -884,6 +955,17 @@ void Settings::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[10])
+    {
+        if(getMediaAddress())
+        {
+            binder << getValueOfMediaAddress();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 
 const std::vector<std::string> Settings::updateColumns() const
@@ -924,6 +1006,10 @@ const std::vector<std::string> Settings::updateColumns() const
     if(dirtyFlag_[9])
     {
         ret.push_back(getColumnName(9));
+    }
+    if(dirtyFlag_[10])
+    {
+        ret.push_back(getColumnName(10));
     }
     return ret;
 }
@@ -1029,6 +1115,17 @@ void Settings::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
+    if(dirtyFlag_[10])
+    {
+        if(getMediaAddress())
+        {
+            binder << getValueOfMediaAddress();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
 }
 Json::Value Settings::toJson() const
 {
@@ -1113,6 +1210,14 @@ Json::Value Settings::toJson() const
     {
         ret["device_version"]=Json::Value();
     }
+    if(getMediaAddress())
+    {
+        ret["media_address"]=getValueOfMediaAddress();
+    }
+    else
+    {
+        ret["media_address"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1120,7 +1225,7 @@ Json::Value Settings::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 10)
+    if(pMasqueradingVector.size() == 11)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -1232,6 +1337,17 @@ Json::Value Settings::toMasqueradedJson(
                 ret[pMasqueradingVector[9]]=Json::Value();
             }
         }
+        if(!pMasqueradingVector[10].empty())
+        {
+            if(getMediaAddress())
+            {
+                ret[pMasqueradingVector[10]]=getValueOfMediaAddress();
+            }
+            else
+            {
+                ret[pMasqueradingVector[10]]=Json::Value();
+            }
+        }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
@@ -1315,6 +1431,14 @@ Json::Value Settings::toMasqueradedJson(
     {
         ret["device_version"]=Json::Value();
     }
+    if(getMediaAddress())
+    {
+        ret["media_address"]=getValueOfMediaAddress();
+    }
+    else
+    {
+        ret["media_address"]=Json::Value();
+    }
     return ret;
 }
 
@@ -1370,13 +1494,18 @@ bool Settings::validateJsonForCreation(const Json::Value &pJson, std::string &er
         if(!validJsonOfField(9, "device_version", pJson["device_version"], err, true))
             return false;
     }
+    if(pJson.isMember("media_address"))
+    {
+        if(!validJsonOfField(10, "media_address", pJson["media_address"], err, true))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                   const std::vector<std::string> &pMasqueradingVector,
                                                   std::string &err)
 {
-    if(pMasqueradingVector.size() != 10)
+    if(pMasqueradingVector.size() != 11)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1462,6 +1591,14 @@ bool Settings::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[10].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[10]))
+          {
+              if(!validJsonOfField(10, pMasqueradingVector[10], pJson[pMasqueradingVector[10]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -1527,13 +1664,18 @@ bool Settings::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(9, "device_version", pJson["device_version"], err, false))
             return false;
     }
+    if(pJson.isMember("media_address"))
+    {
+        if(!validJsonOfField(10, "media_address", pJson["media_address"], err, false))
+            return false;
+    }
     return true;
 }
 bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                 const std::vector<std::string> &pMasqueradingVector,
                                                 std::string &err)
 {
-    if(pMasqueradingVector.size() != 10)
+    if(pMasqueradingVector.size() != 11)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1592,6 +1734,11 @@ bool Settings::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
       {
           if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+      {
+          if(!validJsonOfField(10, pMasqueradingVector[10], pJson[pMasqueradingVector[10]], err, false))
               return false;
       }
     }
@@ -1716,6 +1863,17 @@ bool Settings::validJsonOfField(size_t index,
             }
             break;
         case 9:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 10:
             if(pJson.isNull())
             {
                 return true;
