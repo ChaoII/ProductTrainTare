@@ -73,7 +73,17 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setAlgorithmVersion(algorithm_version);
         setting.setSystemversion(system_version);
         //todo: add update device date time
-
+#if __linux__
+        std::string cmd = "sudo date -s " + current_dateTime;
+        int cmd_ret = system(cmd.c_str());
+        if(cmd_ret!=0){
+            result["code"] = -1;
+            result["data"] = {};
+            result["msg"] = "更新时间失败";
+            auto resp = HttpResponse::newHttpJsonResponse(result);
+            callback(resp);
+        }
+#endif
         setting.setUpdateTime(trantor::Date::now().toCustomedFormattedStringLocal("%Y-%m-%d %H:%M:%S"));
         mp.insert(setting);
     } else {
@@ -86,7 +96,18 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
         setting.setDeviceVersion(device_version);
         setting.setAlgorithmVersion(algorithm_version);
         setting.setSystemversion(system_version);
-        //todo: add update device date time
+
+#if __linux__
+        std::string cmd = "sudo date -s " + current_dateTime;
+        int cmd_ret = system(cmd.c_str());
+        if(cmd_ret!=0){
+            result["code"] = -1;
+            result["data"] = {};
+            result["msg"] = "更新时间失败";
+            auto resp = HttpResponse::newHttpJsonResponse(result);
+            callback(resp);
+        }
+#endif
         setting.setUpdateTime(trantor::Date::now().toCustomedFormattedStringLocal("%Y-%m-%d %H:%M:%S"));
         mp.update(setting);
     }

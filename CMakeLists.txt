@@ -60,8 +60,6 @@ list(APPEND DEPENDS OpenSSL::SSL OpenSSL::Crypto)
 #workspace
 include_directories("${CMAKE_SOURCE_DIR}/3rdpart/workspace/include")
 
-message("qwe as da sdqe w")
-
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DEPENDS})
 
 aux_source_directory(controllers CTL_SRC)
@@ -76,13 +74,11 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/models)
 target_sources(${PROJECT_NAME}
-        PRIVATE
-        ${SRC_DIR}
-        ${CTL_SRC}
-        ${FILTER_SRC}
-        ${PLUGIN_SRC}
-        ${MODEL_SRC}
-        ${CUSTOM_SRC}
-        ${TASK_SRC})
+        PRIVATE ${SRC_DIR} ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC}
+        ${MODEL_SRC} ${CUSTOM_SRC} ${TASK_SRC})
 
-add_subdirectory(test)
+# 复制文件
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/config.json ${CMAKE_BINARY_DIR}
+)
