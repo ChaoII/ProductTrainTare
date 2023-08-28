@@ -120,10 +120,21 @@ void Setting::update_settings(const HttpRequestPtr &req, std::function<void(cons
 
 
 void Setting::restart_device(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) {
-    Json::Value result;
+#if __linux__
+    Json::Value result, sub;
+    std::string cmd = "sudo reboot";
+    int cmd_ret = system(cmd.c_str());
     result["code"] = 0;
     result["data"] = {};
-    result["msg"] = "restart success";
+    result["msg"] = "设备正在重启";
+    auto resp = HttpResponse::newHttpJsonResponse(result);
+    callback(resp);
+#else
+    Json::Value result;
+    result["code"] = -1;
+    result["data"] = {};
+    result["msg"] = "restart is supported for current system";
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);;
+#endif
 }
