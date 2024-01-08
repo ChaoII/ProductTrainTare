@@ -230,5 +230,4 @@ void User::modify_password(const HttpRequestPtr &req, std::function<void(const H
     }
     auto resp = HttpResponse::newHttpJsonResponse(result);
     callback(resp);
-
 }

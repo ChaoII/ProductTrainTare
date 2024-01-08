@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ProductTrainTare CXX)
+project(traintare-api CXX)
 
 # add_dependence 支持
 include(CheckIncludeFileCXX)

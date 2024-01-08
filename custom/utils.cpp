@@ -37,7 +37,7 @@ void Custom::JsDateToDrogonDate(std::string &js_date) {
     replace_str(js_date, "Z", "");
 }
 
-bool Custom::json_array_2_vector(const Json::Value &array, std::vector<std::string> &vec) {
+    bool Custom::json_array_2_vector(const Json::Value &array, std::vector<std::string> &vec) {
     if (!array.isArray()) { return false; }
     for (auto &value: array) {
         std::string val = value.asString();
